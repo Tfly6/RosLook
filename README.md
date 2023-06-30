@@ -46,4 +46,4 @@ git clone https://github.com/Tfly6/RosLook.git
 
 我是基于 *qt 5.12.12* 编译的，直接用 *qt creator* 打开 *.pro* 文件，直接编译。
 
-![image-20230630192948115](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20230630192948115.png)
+![image-20.png](https://github.com/Tfly6/myImage/blob/main/image-20.png)
