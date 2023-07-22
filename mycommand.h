@@ -1,28 +1,26 @@
-/**
-****************************************************************************************
- * @Author: Tfly6 2085488186@qq.com
- * @Date: 2023-06-16 00:18:58
- * @LastEditors: Tfly6 2085488186@qq.com
- * @LastEditTime: 2023-06-21 22:16:47
-****************************************************************************************
-*/
 #ifndef MYCOMMAND_H
 #define MYCOMMAND_H
 
 #include <QObject>
 #include <QProcess>
-#include <QVector>
+#include "config.h"
+
 
 enum Mode{
     MODENULL,
-    MODEENV,
     MODELIST,
     MODEINFO,
+    MODEKILLCMD,
     MODEPUB,
-    MODESUB,
-    MODEKILLSUB,
-    MODEOTHER,
+    MODEECHO,
+    MODEPING,
+    MODEKILL,
+    //MODEOTHER,
 };
+
+//enum SubMode{
+
+//};
 
 class MyCommand : public QObject
 {
@@ -30,35 +28,32 @@ class MyCommand : public QObject
 public:
     explicit MyCommand(QObject *parent = nullptr);
 
-    void getRosEnv();
-    void listCmd();
-    void infoCmd(QString topic);
-    void echoCmd(QString topic ,QString arg = "-c ");
-    void pubCmd(QString topic ,QString type ,QString con ,
-                QString arg );
+    QProcess *process;
 
-    void otherCmd(QString cmd);
-    void killEchoCmd();
+    void getRosEnv();
+    void killCmd(QString cmd);
+    void doKill(QStringList pidList);
+
+    void writeCmd(QString cmd);
 
 
     static QString envPath;
-    
-    int modeFlag;
-    QStringList content;
-    QStringList pidList;
+
+    //int modeFlag;
+    //int subMode;
+    //QStringList content;
+    //QStringList pidList;
 
 signals:
     void Error(QString err);
     void readOut(int modeFlag,QStringList con);
 
 private slots:
-    void onReOut();
     void onError();
 
+
 private:
-    
-    QProcess *process;   // 启动bash
-    
+    Config *myConfog;
 };
 
 #endif // MYCOMMAND_H

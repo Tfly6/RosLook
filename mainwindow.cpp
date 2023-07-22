@@ -1,21 +1,7 @@
-/**
-****************************************************************************************
- * @Author: Tfly6 2085488186@qq.com
- * @Date: 2023-06-16 00:18:58
- * @LastEditors: Tfly6 2085488186@qq.com
- * @LastEditTime: 2023-06-21 20:35:56
- * @Description: 主窗口
-****************************************************************************************
-*/
-
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QMessageBox>
 #include <QDebug>
-#include <QMenu>
-#include "stdio.h"
-#include "signal.h"
-
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -25,33 +11,42 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->windowInit();
 
-    closeFlag = true;   // 允许关闭界面
-    echoFlag = false;   // echo 命令未开启
-
-    myCmd = new MyCommand(this);
-    echoCmd = new MyCommand(this);
-    pubCmd = new MyCommand(this);
-
     autuDialog = new AutoDialog(this);
 
-    myCmd->getRosEnv();
+    closeFlag = true;
 
-    // 函数指针
-    void (MyCommand::*cmd)(int modeFlag,QStringList con) = &MyCommand::readOut;
-    void (MyCommand::*cmdErr)(QString err) = &MyCommand::Error;
-    void (MyCommand::*echo)(int modeFlag,QStringList con) = &MyCommand::readOut;
-    void (MyCommand::*echoErr)(QString err) = &MyCommand::Error;
-    void (MyCommand::*pub)(int modeFlag,QStringList con) = &MyCommand::readOut;
-    void (MyCommand::*pubErr)(QString err) = &MyCommand::Error;
+    //rostopic = new Rostopic(this);
+    //rosnode = new Rosnode(this);
 
-    connect(myCmd,cmd,this,&MainWindow::onReOut);
-    connect(myCmd,cmdErr,this,&MainWindow::onError);
-    connect(echoCmd,echo,this,&MainWindow::onReOut);
-    connect(echoCmd,echoErr,this,&MainWindow::onError);
-    connect(pubCmd,pub,this,&MainWindow::onReOut);
-    connect(pubCmd,pubErr,this,&MainWindow::onError);
+    topicCmd = new Rostopic(this);
+    echoCmd = new Rostopic(this);
+    pubCmd = new Rostopic(this);
 
+    nodeCmd = new Rosnode(this);
+    pingCmd = new Rosnode(this);
+
+    topicCmd->getRosEnv();
+
+    void (Rostopic::*topic)(int modeFlag,QStringList con) = &Rostopic::readOut;
+    void (Rostopic::*topicErr)(QString err) = &Rostopic::Error;
+
+    connect(topicCmd,topic,this,&MainWindow::onTopicReOut);
+    connect(topicCmd,topicErr,this,&MainWindow::onError);
+    connect(echoCmd,topic,this,&MainWindow::onTopicReOut);
+    connect(echoCmd,topicErr,this,&MainWindow::onError);
+    connect(pubCmd,topic,this,&MainWindow::onTopicReOut);
+    connect(pubCmd,topicErr,this,&MainWindow::onError);
+
+
+    void (Rosnode::*node)(int modeFlag,QStringList con) = &Rosnode::readOut;
+    void (Rosnode::*nodeErr)(QString err) = &Rosnode::Error;
+
+    connect(nodeCmd,node,this,&MainWindow::onNodeReOut);
+    connect(nodeCmd,nodeErr,this,&MainWindow::onError);
+    connect(pingCmd,node,this,&MainWindow::onNodeReOut);
+    connect(pingCmd,nodeErr,this,&MainWindow::onError);
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -63,16 +58,12 @@ void MainWindow::windowInit()
     this->setWindowIcon(QPixmap(":/res/app.png"));
     this->setWindowTitle("RosLook");
 
-    clearAct = new QAction("清除",this);
     closesAct = new QAction("退出",this);
     //设置打开文件动作的提示信息
-    clearAct->setStatusTip("清除 echoCmd 进程");
     closesAct->setStatusTip("退出程序");
     //关联打开文件动作的信号和槽
-    connect(clearAct, &QAction::triggered, this, &MainWindow::clearEcho);
     connect(closesAct,&QAction::triggered,this,&MainWindow::closeact);
     QMenu *menu = ui->menubar->addMenu("工具");
-    menu->addAction(clearAct);
     menu->addAction(closesAct);
 
     stabar = new QLabel(this);
@@ -87,13 +78,17 @@ void MainWindow::windowInit()
     ui->statusbar->addWidget(stabar);
 }
 
-void MainWindow::clearEcho()
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-    echoCmd->killEchoCmd();
-    closeFlag = true;
-    stabar->setText("echoCmd:关");
-    ui->statusbar->addWidget(stabar);
-    echoFlag = false;
+    if(closeFlag)
+    {
+        qDebug("end...");
+        event->accept();
+    }
+    else{
+        event->ignore();
+        QMessageBox::warning(this,"警告","请先清除 echoCmd");
+    }
 }
 
 void MainWindow::closeact()
@@ -107,26 +102,29 @@ void MainWindow::onError(QString err)
     QMessageBox::critical(this,"错误",err.toUtf8());
 }
 
-void MainWindow::onReOut(int modeFlag,QStringList con)
+void MainWindow::onTopicReOut(int modeFlag,QStringList con)
 {
     // for (auto &element : con) {
     //     qDebug()<< element;
     // }
-    
+    //qDebug()<<rostopic->modeFlag;
+    qDebug()<<modeFlag;
     if(modeFlag == MODELIST)
     {
         ui->list_topic->clear();
         ui->list_topic->addItems(con);
+        //qDebug()<<1;
     }
     if(modeFlag == MODEINFO)
     {
-        ui->list_info->clear();
-        ui->list_info->addItems(con);
+        ui->list_info_topic->clear();
+        ui->list_info_topic->addItems(con);
     }
-    if(modeFlag == MODESUB)
+    if(modeFlag == MODEECHO)
     {
-        ui->list_sub->clear();
-        ui->list_sub->addItems(con);
+        ui->list_echo->clear();
+        ui->list_echo->addItems(con);
+        //qDebug()<<2;
     }
     if(modeFlag == MODEPUB)
     {
@@ -135,52 +133,66 @@ void MainWindow::onReOut(int modeFlag,QStringList con)
     }
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::onNodeReOut(int modeFlag,QStringList con)
 {
-//    QThread::msleep(50);  // 50ms
-    if(closeFlag)
+    if(modeFlag == MODELIST)
     {
-        qDebug("end...");
-        event->accept();
+        ui->list_node->clear();
+        ui->list_node->addItems(con);
+        //qDebug()<<45;
     }
-    else{
-        event->ignore();
-        QMessageBox::warning(this,"警告","请先清除 echoCmd");
+    if(modeFlag == MODEINFO)
+    {
+        ui->list_info_node->clear();
+        ui->list_info_node->addItems(con);
     }
-
+    if(modeFlag == MODEPING)
+    {
+        ui->list_ping->clear();
+        ui->list_ping->addItems(con);
+        //qDebug()<<2;
+    }
+    if(modeFlag == MODEKILL)
+    {
+        ui->list_kill->clear();
+        ui->list_kill->addItems(con);
+    }
 }
 
-void MainWindow::on_Btn_flushed_clicked()
+// rostopic
+void MainWindow::on_Btn_flushed_1_clicked()
 {
-    myCmd->listCmd();
+    topicCmd->list();
 }
 
 void MainWindow::on_list_topic_itemDoubleClicked(QListWidgetItem *item)
 {
-    target = item->text();
-    ui->line_topic->setText(target);
-    myCmd->infoCmd(target);
+    topicName = item->text();
+    ui->line_topic->setText(topicName);
+    topicCmd->info(topicName);
 }
 
-void MainWindow::on_Btn_sub_clicked()
+void MainWindow::on_Btn_echo_clicked()
 {
-
-    if(!target.isEmpty())
+    if(!topicName.isEmpty())
     {
+        bool echoFlag = echoCmd->echoFlag;
+
         echoFlag = !echoFlag;
         if(echoFlag)
         {
-            echoCmd->echoCmd(target);
+            echoCmd->echo(topicName);
             stabar->setText("echoCmd:开");
             ui->statusbar->addWidget(stabar);
             closeFlag = false;
         }
         else{
-            echoCmd->killEchoCmd();
+            echoCmd->killEcho();
             stabar->setText("echoCmd:关");
             ui->statusbar->addWidget(stabar);
             closeFlag = true;
         }
+        echoCmd->echoFlag = echoFlag;
     }
     else{
        QMessageBox::warning(this,"警告","请先选择topic");
@@ -189,20 +201,48 @@ void MainWindow::on_Btn_sub_clicked()
 
 void MainWindow::on_Btn_pub_clicked()
 {
+
     QString topic = autuDialog->topic;
     if(topic.isEmpty())
     {
-        topic = target;
+        topic = topicName;
     }
-
+    //qDebug()<<"33";
     QString type = autuDialog->type;
     QString arg = autuDialog->arg;
     QString con = autuDialog->con;
-    pubCmd->pubCmd(topic,type,con,arg);
+    pubCmd->pub(topic,type,con,arg);
 }
 
 void MainWindow::on_Btn_auto_clicked()
 {
     autuDialog->show();
+}
+
+// rosnode
+void MainWindow::on_Btn_flushed_2_clicked()
+{
+    nodeCmd->list();
+}
+
+void MainWindow::on_list_node_itemDoubleClicked(QListWidgetItem *item)
+{
+    nodeName = item->text();
+    ui->line_node->setText(nodeName);
+    nodeCmd->info(nodeName);
+}
+
+void MainWindow::on_Btn_kill_clicked()
+{
+    int button = QMessageBox::question(this,"询问","确定杀掉此节点吗?",QMessageBox::Yes,QMessageBox::No);
+    if(QMessageBox::Yes == button)
+    {
+        nodeCmd->kill(nodeName);//默认情况下接收关闭信号，关闭窗体
+    }
+}
+
+void MainWindow::on_Btn_ping_clicked()
+{
+    pingCmd->ping(nodeName);
 }
 

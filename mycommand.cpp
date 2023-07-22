@@ -1,13 +1,3 @@
-/**
-****************************************************************************************
- * @Author: Tfly6 2085488186@qq.com
- * @Date: 2023-06-16 00:18:58
- * @LastEditors: Tfly6 2085488186@qq.com
- * @LastEditTime: 2023-06-21 20:57:12
- * @Description: 使用QProcess自定义命令
-****************************************************************************************
-*/
-
 #include "mycommand.h"
 #include <QThread>
 #include <QDebug>
@@ -17,8 +7,9 @@ QString MyCommand::envPath = "";
 
 MyCommand::MyCommand(QObject *parent) : QObject(parent)
 {
-    modeFlag = MODENULL;
+    //modeFlag = MODENULL;
 
+    myConfog = new Config(this);
     process = new QProcess(this);
     process->setProgram("bash");
 
@@ -27,99 +18,75 @@ MyCommand::MyCommand(QObject *parent) : QObject(parent)
         qDebug() << "start ok!";
     });
 
-    
-//    void (QProcess::*fin)(int exitCode, QProcess::ExitStatus exitStatus) = &QProcess::finished;
+    void (QProcess::*fin)(int exitCode, QProcess::ExitStatus exitStatus) = &QProcess::finished;
 //    void (QProcess::*error)(QProcess::ProcessError error) = &QProcess::errorOccurred;
     void (MyCommand::*errorReOut)() = &MyCommand::onError;
 
-//    connect(process,fin,[=](int exitCode, QProcess::ExitStatus exitStatus){
-//        qDebug() << "finished: "<< exitCode <<","<< exitStatus;
-//    });
+    connect(process,fin,[=](int exitCode, QProcess::ExitStatus exitStatus){
+        qDebug() << "finished: "<< exitCode <<","<< exitStatus;
+    });
 //    connect(process,error,[=](QProcess::ProcessError error){
 //        qDebug() << "error: "<< error;
 //    });
-    connect(process,&QProcess::readyReadStandardOutput,this,&MyCommand::onReOut);
+//    connect(process,&QProcess::readyReadStandardOutput,this,&MyCommand::onReOut);
     connect(process,&QProcess::readyReadStandardError,this,errorReOut);
 
 }
+
+//void MyCommand::onReOut()
+//{
+//    QString line = process->readAll();
+//    if(line.isEmpty())
+//    {
+//        qDebug() <<"error: " ;
+//    }
+//    QStringList list = line.split("\n",QString::SkipEmptyParts);
+//    if(modeFlag == MODEKILLCMD)
+//    {
+//        pidList = list;
+//        for(auto &pid:pidList)
+//        {
+//            //qDebug()<<pid;
+//            kill(pid.toInt(),SIGINT);
+//        }
+//        qDebug()<<"kill cmd ok!";
+//    }
+//    if(modeFlag == MODEOTHER)
+//    {
+//        //qDebug()<<"MODEOTHER";
+//        //content = list;
+//        emit readOut(subMode,list);
+//    }
+//}
 
 void MyCommand::onError()
 {
     QString error = process->readAllStandardError();
     //error.chop(2);
-    //qDebug()<<error;
-    emit Error(error);
-}
-
-void MyCommand::onReOut()
-{
-    QString line = process->readAll();
-    if(line.isEmpty())
+    qDebug()<<error;
+    if(envPath.isEmpty())
     {
-        qDebug() <<"error: " ;
+        emit Error("环境错误，请检查配置文件");
     }
-    QStringList list = line.split("\n",QString::SkipEmptyParts);
-    if(modeFlag == MODEENV)
+    else
     {
-        envPath = QString("source /opt/ros/%1/setup.bash && ").arg(list[0]);
-        //qDebug()<< envPath;
-    }
-    if(modeFlag == MODELIST)
-    {
-        //qDebug()<<"MODELIST";
-        content = list;
-        emit readOut(modeFlag,content);
-    }
-    if(modeFlag == MODEINFO)
-    {
-        //qDebug()<<"MODEINFO";
-        content = list;
-        emit readOut(modeFlag,content);
-    }
-    if(modeFlag == MODESUB)
-    {
-        //qDebug()<<"MODESUB";
-        content << list;
-        emit readOut(modeFlag,content);
-    }
-    if(modeFlag == MODEPUB)
-    {
-        //qDebug()<<"MODEPUB";
-        content << list;
-        emit readOut(modeFlag,content);
-    }
-    if(modeFlag == MODEKILLSUB)
-    {
-        pidList = list;
-        for(auto pid:pidList)
-        {
-            //qDebug()<<pid;
-            kill(pid.toInt(),SIGINT);
-        }
-    }
-    if(modeFlag == MODEOTHER)
-    {
-        //qDebug()<<"MODEOTHER";
-        content << list;
-        emit readOut(modeFlag,content);
+        emit Error(error);
     }
 }
 
 void MyCommand::getRosEnv()
 {
-    if(process->state() == QProcess::Running)
+    envPath = myConfog->readConfig();
+    if(envPath.isEmpty())
     {
-        process->close();
-        QThread::msleep(100);
+        qDebug()<<"env error";
+        return;
     }
-    process->start();
-    process->waitForStarted();
-    process->write("ls /opt/ros\n");
-
-    modeFlag = MODEENV;
+    envPath = "source "+envPath+" && ";
+    qDebug()<<"env = "<<envPath;
 }
 
-void MyCommand::listCmd()
+void MyCommand::writeCmd(QString cmd)
 {
     if(process->state() == QProcess::Running)
     {
@@ -128,13 +95,12 @@ void MyCommand::listCmd()
     }
     process->start();
     process->waitForStarted();
-    QString cmd = envPath+"rostopic list\n";
+    cmd = envPath+cmd;
     process->write(cmd.toUtf8());
-    modeFlag = MODELIST;
-    // rostopic list
+    //modeFlag = MODEOTHER;
 }
 
-void MyCommand::infoCmd(QString topic)
+void MyCommand::killCmd(QString cmd)
 {
     if(process->state() == QProcess::Running)
     {
@@ -143,96 +109,17 @@ void MyCommand::infoCmd(QString topic)
     }
     process->start();
     process->waitForStarted();
-    QString cmd = envPath+"rostopic info "+topic+"\n";
-    process->write(cmd.toUtf8());
-    modeFlag = MODEINFO;
-    // rostopic info topic_name
+    process->write("ps -ef | grep '"+cmd.toUtf8()+"' | grep -v grep | awk '{print $2}'\n");
+    qDebug()<<"7867";
+    //modeFlag = MODEKILLCMD;
 }
 
-void MyCommand::echoCmd(QString topic,QString arg)
+void MyCommand::doKill(QStringList pidList)
 {
-    if(process->state() == QProcess::Running)
+    for(auto &pid:pidList)
     {
-        process->close();
-        QThread::msleep(100);
+        //qDebug()<<pid;
+        kill(pid.toInt(),SIGINT);
     }
-    process->start();
-    process->waitForStarted();
-    QString cmd = envPath+"rostopic echo "+arg+topic+"\n";
-    process->write(cmd.toUtf8());
-    modeFlag = MODESUB;
-    // rostopic echo arg topic_name
-}
-
-void MyCommand::pubCmd(QString topic, QString type, QString con, QString arg)
-{
-    if(process->state() == QProcess::Running)
-    {
-        process->close();
-        QThread::msleep(100);
-    }
-
-//    if(topic.isEmpty())
-//    {
-//        topic = "/chatter";
-//    }
-    if(type.isEmpty())
-    {
-        type = "std_msgs/String";
-    }
-    if(con.isEmpty())
-    {
-        con = "hello";
-    }
-    if(arg.isEmpty())
-    {
-        arg = "-1";
-    }
-    content = QStringList()<<"pub data: "+con;
-
-//    qDebug()<<topic;
-//    qDebug()<<type;
-//    qDebug()<<arg;
-//    qDebug()<<con <<" " <<typeid(con).name();
-
-    // 判断con 是否为数字
-    if(con.contains(QRegExp("[+-]?(0|([1-9]\\d*))(\\.\\d+)?")))
-    {
-        con = "\"'"+con+"'\"";
-    }
-    process->start();
-    process->waitForStarted();
-
-    QString cmd = envPath+"rostopic pub "+arg+" "+topic+" "+type+" "+con+"\n";
-    //qDebug()<<cmd;
-    //content = QStringList()<<"pub data: "+con;
-    process->write(cmd.toUtf8());
-    modeFlag = MODEPUB;
-    //rostopic pub -1 topic_name topic_type “con”
-}
-
-void MyCommand::otherCmd(QString cmd)
-{
-    if(process->state() == QProcess::Running)
-    {
-        process->close();
-        QThread::msleep(100);
-    }
-    process->start();
-    process->waitForStarted();
-    process->write(cmd.toUtf8());
-    modeFlag = MODEOTHER;
-}
-
-void MyCommand::killEchoCmd()
-{
-    if(process->state() == QProcess::Running)
-    {
-        process->close();
-        QThread::msleep(100);
-    }
-    process->start();
-    process->waitForStarted();
-    process->write("ps -ef | grep 'rostopic echo' | grep -v grep | awk '{print $2}'\n");
-    modeFlag = MODEKILLSUB;
+    qDebug()<<"kill cmd ok!";
 }

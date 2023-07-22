@@ -10,14 +10,20 @@ CONFIG += c++11
 
 SOURCES += \
     autodialog.cpp \
+    config.cpp \
     main.cpp \
     mainwindow.cpp \
-    mycommand.cpp
+    mycommand.cpp \
+    rosnode.cpp \
+    rostopic.cpp
 
 HEADERS += \
     autodialog.h \
+    config.h \
     mainwindow.h \
-    mycommand.h
+    mycommand.h \
+    rosnode.h \
+    rostopic.h
 
 FORMS += \
     autodialog.ui \

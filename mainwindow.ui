@@ -14,28 +14,41 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QTabWidget" name="tab_manager">
-      <property name="minimumSize">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
        <size>
-        <width>100</width>
-        <height>0</height>
+        <width>20</width>
+        <height>40</height>
        </size>
       </property>
-      <property name="locale">
-       <locale language="English" country="Australia"/>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true"/>
       </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tab_status">
+      <widget class="QWidget" name="rostopic">
        <attribute name="title">
-        <string>Ros Communications</string>
+        <string>rostopic</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QGroupBox" name="groupBox_12">
+         <widget class="QGroupBox" name="groupBox_13">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -45,27 +58,77 @@
           <property name="title">
            <string/>
           </property>
-          <layout class="QGridLayout" name="gridLayout_3">
+          <layout class="QGridLayout" name="gridLayout_4">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="horizontalSpacing">
+            <number>6</number>
+           </property>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="Btn_auto">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>自定义</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="label_5">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <property name="text">
+              <string>echo</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QListWidget" name="list_echo"/>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QListWidget" name="list_pub"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <property name="text">
+              <string>pub</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="2" rowspan="4">
-            <widget class="QGroupBox" name="groupBox">
+            <widget class="QGroupBox" name="groupBox_3">
              <property name="title">
               <string/>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_4">
+             <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
-               <widget class="QGroupBox" name="groupBox_2">
+               <widget class="QGroupBox" name="groupBox_4">
                 <property name="title">
                  <string>topic</string>
                 </property>
-                <layout class="QGridLayout" name="gridLayout">
+                <layout class="QGridLayout" name="gridLayout_2">
                  <item row="6" column="0" colspan="3">
                   <widget class="QListWidget" name="list_topic"/>
                  </item>
                  <item row="1" column="0" colspan="3">
-                  <widget class="QListWidget" name="list_info"/>
+                  <widget class="QListWidget" name="list_info_topic"/>
                  </item>
                  <item row="5" column="2">
-                  <widget class="QPushButton" name="Btn_flushed">
+                  <widget class="QPushButton" name="Btn_flushed_1">
                    <property name="font">
                     <font>
                      <pointsize>11</pointsize>
@@ -84,7 +147,7 @@
                   </widget>
                  </item>
                  <item row="5" column="0">
-                  <widget class="QPushButton" name="Btn_sub">
+                  <widget class="QPushButton" name="Btn_echo">
                    <property name="text">
                     <string>echo</string>
                    </property>
@@ -103,8 +166,45 @@
              </layout>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_3">
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="rosnode">
+       <attribute name="title">
+        <string>rosnode</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="title">
+           <string>node</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="4" column="0">
+            <widget class="QListWidget" name="list_node"/>
+           </item>
+           <item row="4" column="1">
+            <widget class="QListWidget" name="list_kill"/>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_7">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -112,27 +212,56 @@
               <enum>QFrame::Raised</enum>
              </property>
              <property name="text">
-              <string>pub</string>
+              <string>ping</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QPushButton" name="Btn_auto">
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>自定义</string>
-             </property>
+           <item row="3" column="0">
+            <widget class="QWidget" name="widget" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="Btn_flushed_2">
+                <property name="font">
+                 <font>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>刷新</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Btn_kill">
+                <property name="text">
+                 <string>kill</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Btn_ping">
+                <property name="text">
+                 <string>ping</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QListWidget" name="list_sub"/>
+           <item row="1" column="0">
+            <widget class="QListWidget" name="list_info_node"/>
            </item>
-           <item row="0" column="0" colspan="2">
-            <widget class="QLabel" name="label_2">
+           <item row="3" column="1">
+            <widget class="QLabel" name="label_6">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -140,12 +269,19 @@
               <enum>QFrame::Raised</enum>
              </property>
              <property name="text">
-              <string>echo</string>
+              <string>kill</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QListWidget" name="list_pub"/>
+           <item row="0" column="0">
+            <widget class="QLineEdit" name="line_node">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QListWidget" name="list_ping"/>
            </item>
           </layout>
          </widget>
