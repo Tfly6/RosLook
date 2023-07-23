@@ -1,3 +1,10 @@
+/*
+ * @Author: Tfly6 2085488186@qq.com
+ * @Date: 2023-07-22 21:50:36
+ * @LastEditors: Tfly6 2085488186@qq.com
+ * @LastEditTime: 2023-07-23 21:15:12
+ * @Description: 主界面
+ */
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QMessageBox>
@@ -15,9 +22,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     closeFlag = true;
 
-    //rostopic = new Rostopic(this);
-    //rosnode = new Rosnode(this);
-
     topicCmd = new Rostopic(this);
     echoCmd = new Rostopic(this);
     pubCmd = new Rostopic(this);
@@ -25,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     nodeCmd = new Rosnode(this);
     pingCmd = new Rosnode(this);
 
-    topicCmd->getRosEnv();
+    topicCmd->getRosEnv();     // 读取配置文件
 
     void (Rostopic::*topic)(int modeFlag,QStringList con) = &Rostopic::readOut;
     void (Rostopic::*topicErr)(QString err) = &Rostopic::Error;
@@ -107,13 +111,11 @@ void MainWindow::onTopicReOut(int modeFlag,QStringList con)
     // for (auto &element : con) {
     //     qDebug()<< element;
     // }
-    //qDebug()<<rostopic->modeFlag;
-    qDebug()<<modeFlag;
+    //qDebug()<<modeFlag;
     if(modeFlag == MODELIST)
     {
         ui->list_topic->clear();
         ui->list_topic->addItems(con);
-        //qDebug()<<1;
     }
     if(modeFlag == MODEINFO)
     {
@@ -124,7 +126,6 @@ void MainWindow::onTopicReOut(int modeFlag,QStringList con)
     {
         ui->list_echo->clear();
         ui->list_echo->addItems(con);
-        //qDebug()<<2;
     }
     if(modeFlag == MODEPUB)
     {
@@ -139,7 +140,6 @@ void MainWindow::onNodeReOut(int modeFlag,QStringList con)
     {
         ui->list_node->clear();
         ui->list_node->addItems(con);
-        //qDebug()<<45;
     }
     if(modeFlag == MODEINFO)
     {
@@ -150,7 +150,6 @@ void MainWindow::onNodeReOut(int modeFlag,QStringList con)
     {
         ui->list_ping->clear();
         ui->list_ping->addItems(con);
-        //qDebug()<<2;
     }
     if(modeFlag == MODEKILL)
     {
@@ -207,7 +206,6 @@ void MainWindow::on_Btn_pub_clicked()
     {
         topic = topicName;
     }
-    //qDebug()<<"33";
     QString type = autuDialog->type;
     QString arg = autuDialog->arg;
     QString con = autuDialog->con;

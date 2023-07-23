@@ -1,3 +1,10 @@
+/*
+ * @Author: Tfly6 2085488186@qq.com
+ * @Date: 2023-07-22 21:50:05
+ * @LastEditors: Tfly6 2085488186@qq.com
+ * @LastEditTime: 2023-07-23 21:26:24
+ * @Description: rosnode 命令
+ */
 #include "rosnode.h"
 #include <QDebug>
 
@@ -10,7 +17,7 @@ Rosnode::Rosnode(QObject *parent) : MyCommand(parent)
 
 void Rosnode::onReOut()
 {
-    QString line = process->readAll();
+    QString line = process->readAll();    // 读取命令输出的内容
     if(line.isEmpty())
     {
         qDebug() <<"error: " ;
@@ -39,35 +46,30 @@ void Rosnode::onReOut()
     }
 }
 
-//void Rosnode::onError(QString err)
-//{
-//    emit Error(err);
-//}
-
 void Rosnode::list()
 {
     writeCmd("rosnode list\n");
     modeFlag = MODELIST;
-    //myCmd->subMode = modeFlag;
+    //qDebug()<<"rosnode list";
 }
 
 void Rosnode::info(QString node)
 {
     writeCmd("rosnode info "+node+"\n");
     modeFlag = MODEINFO;
-    //myCmd->subMode = modeFlag;
+    //qDebug()<<"rosnode info";
 }
 
 void Rosnode::ping(QString node)
 {
     writeCmd("rosnode ping -c 5 "+node+"\n");
     modeFlag = MODEPING;
-    //pingCmd->subMode = modeFlag;
+    //qDebug()<<"rosnode ping";
 }
 
 void Rosnode::kill(QString node)
 {
     writeCmd("rosnode kill "+node+"\n");
     modeFlag = MODEKILL;
-    //myCmd->subMode = modeFlag;
+    //qDebug()<<"rosnode kill";
 }

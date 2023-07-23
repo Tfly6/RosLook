@@ -3,7 +3,7 @@
 *RosLook* 是一个基于 *QT C++* 的 gui 程序，用于调试 ros 程序。虽然 ros 官方已经提供了 `rqt` ，但是谁不想做一个属于自己的小工具呢😏 
 
 ## 简介
-*RosLook* 是通过使用 QT 自带的 *QProcess* 库来实现它的功能，其实就是用 *QProcess* 来启动一些 ros 命令，大家可以查看 `mycommand.cpp` 文件，获取更多详细信息。
+*RosLook* 是通过使用 QT 自带的 *QProcess* 库来实现它的功能，其根本就是用 *QProcess* 来启动一些 ros 命令，大家可以查看 `mycommand.cpp` 文件，获取更多详细信息。
 
 **目前实现的命令**
 
@@ -13,6 +13,10 @@
 | rostopic info | 查看通过指定topic话题相互通信的双方的信息      |
 | rostopic echo | 显示发布到指定话题的消息  （目前不支持自定义） |
 | rostopic pub  | 使用指定的话题名称发布消息  （可自定义命令）   |
+| rosnode  list | 列出正在运行中的所有节点  |
+| rosnode  info | 检查指定节点的信息  |
+| rosnode  ping | 与指定的节点进行连接测试  |
+| rosnode  kill | 终止指定节点的运行  |
 
 
 
@@ -26,8 +30,8 @@
 
 ### 直接安装
 
-1. 先从 **Releases** 中下载安装包
-1. 运行
+1. 先从 **Releases** 中下载安装包 （目前只发行了 v0.1，也就是只有 rostopic 命令，想要体验最新功能需要自己下载源码编译）
+2. 运行
 
 ```shell
 chmod +x ./roslook-x86_64.AppImage

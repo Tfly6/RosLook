@@ -1,3 +1,10 @@
+/*
+ * @Author: Tfly6 2085488186@qq.com
+ * @Date: 2023-07-22 21:50:37
+ * @LastEditors: Tfly6 2085488186@qq.com
+ * @LastEditTime: 2023-07-23 21:12:35
+ * @Description: 主界面
+ */
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -21,14 +28,14 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void windowInit();
+    void windowInit();        // 界面初始化
 
-    QString topicName;
-    QString nodeName;
+    QString topicName;        // 话题名
+    QString nodeName;         // 节点名
 
-    QAction *closesAct;       // 菜单里推出界面的功能
-    QLabel *stabar;
-    bool closeFlag;
+    QAction *closesAct;       // 菜单里退出界面的功能
+    QLabel *stabar;           // 状态栏显示的消息
+    bool closeFlag;           // 界面关闭标志
 
 
 private slots:
@@ -61,9 +68,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    //Rostopic *rostopic;
-    //Rosnode *rosnode;
-
+    
     Rostopic *topicCmd;
     Rostopic *echoCmd;
     Rostopic *pubCmd;

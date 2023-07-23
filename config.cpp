@@ -1,3 +1,10 @@
+/*
+ * @Author: Tfly6 2085488186@qq.com
+ * @Date: 2023-07-22 21:57:16
+ * @LastEditors: Tfly6 2085488186@qq.com
+ * @LastEditTime: 2023-07-23 21:06:51
+ * @Description: 解析配置文件
+ */
 #include "config.h"
 #include <QDebug>
 #include <QFile>
@@ -63,7 +70,7 @@ QString Config::readConfig()
         return ret;
     }
     ret = nameValue.toString();
-    qDebug() << "path = " << ret;
+    //qDebug() << "path = " << ret;
     return ret;
 }
 
